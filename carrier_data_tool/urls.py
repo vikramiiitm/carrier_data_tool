@@ -24,5 +24,6 @@ from account import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('account.urls')),
+    path('company/', include('company.urls')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

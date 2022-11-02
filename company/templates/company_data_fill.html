@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load myfilters %}
+{% block content %}
+<style>
+    .main-area{
+    display: flex;
+    align-items: center;
+    }
+
+    .register-form{
+        width:100%;
+        max-width: 500px;
+        margin:auto;
+        margin-top:40px;
+        padding:20px;
+        background-color: #fff;
+        border-top: 5px solid #0D8BF6;
+        border-radius: 5px;
+    }
+
+</style>
+<form method="POST">{% csrf_token %}
+<div class="'main-area">
+
+    <div class="register-form">
+        <h2 class="mainheading">Add Company Data</h2>
+        <!--          <h4 class="mainheading"></h4>-->
+        <p class="errorlist">{{ form.non_field_errors }}</p>
+        <label for="id_name" class="login-labels mt-2">Company Name*</label>
+        {{ form.name.errors }}
+        {{ form.name|addclass:'form-control'|addplaceholder:'Company Name'}}
+
+        <label for="id_legal_name" class="login-labels mt-2">Legal Name*</label>
+          {{ form.legal_name.errors }}
+          {{ form.legal_name|addclass:'form-control'|addplaceholder:'Legal Name'}}
+
+        <label for="id_dot" class="login-labels mt-2">DOT*</label>
+          {{ form.dot.errors }}
+          {{ form.dot|addclass:'form-control'|addplaceholder:'DOT'}}
+
+        <label for="id_incorporation_date" class="login-labels mt-2">Incorporation Date</label>
+          {{ form.incorporation_date.errors }}
+          {{ form.incorporation_date|addclass:'form-control'|addplaceholder:'Incorporation Date'}}
+
+        <label for="id_motor_carrier_number" class="login-labels mt-2">Motor Carrier Number</label>
+          {{ form.motor_carrier_number.errors }}
+          {{ form.motor_carrier_number|addclass:'form-control'|addplaceholder:'Motor Carrier Number'}}
+
+        <label for="id_is_active" class="login-labels mt-2">Is Active</label>
+          {{ form.is_active.errors }}
+          {{ form.is_active|addclass:'form-control'|addplaceholder:'Company is active?'}}
+
+        <button type="submit"  class="btn btn-primary btn-lg signup-button m-2">Signup</button>
+    </div>
+</div>
+{% endblock %}

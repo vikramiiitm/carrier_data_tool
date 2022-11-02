@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load myfilters %}
+{% block content %}
+
+<style>
+    .main-area{
+    display: flex;
+    align-items: center;
+    }
+</style>
+
+<div class="'main-area">
+
+
+    {% for data in company %}
+        {{ data.id }} {{ data.name }}
+    <br>
+    {% endfor %}
+
+</div>
+
+{% endblock %}
