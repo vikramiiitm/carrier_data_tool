@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'account',
     'company',
     'phonenumber_field',
+    'django_filters',
+    'bootstrapform',
 ]
 
 MIDDLEWARE = [
