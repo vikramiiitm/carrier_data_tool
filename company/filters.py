@@ -10,5 +10,6 @@ class CompanyFilters(django_filters.FilterSet):
         fields = {
             'name': ['icontains'],
             'legal_name': ['icontains'],
-            'dot': ['iexact'],
+            'dot': ['icontains'],
+            'addresses__city':['icontains']
         }

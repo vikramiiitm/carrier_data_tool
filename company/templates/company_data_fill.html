@@ -18,6 +18,9 @@
         border-top: 5px solid #0D8BF6;
         border-radius: 5px;
     }
+    div {
+        d-flex justify-content-center
+    }
 
 </style>
 <form method="POST">{% csrf_token %}
@@ -50,8 +53,10 @@
         <label for="id_is_active" class="login-labels mt-2">Is Active</label>
           {{ form.is_active.errors }}
           {{ form.is_active|addclass:'form-control'|addplaceholder:'Company is active?'}}
+        <span class="d-flex justify-content-center">
+            <button type="submit"  class="btn btn-primary btn-lg signup-button m-2 ">Add Company</button>
+        </span>
 
-        <button type="submit"  class="btn btn-primary btn-lg signup-button m-2">Signup</button>
     </div>
 </div>
 {% endblock %}

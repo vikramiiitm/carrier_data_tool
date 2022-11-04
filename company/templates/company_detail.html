@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load static %}
+{% block content %}
+<style>
+
+</style>
+    {% block title %}
+        Company Detail
+    {% endblock %}
+<div class="'main-area ml-4 mr-4">
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Company</th>
+          <th scope="col">Legal Name</th>
+          <th scope="col">Dot</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <th scope="row"></th>
+          <td>{{company_data.name}}</td>
+          <td>{{company_data.legal_name}}</td>
+          <td>{{company_data.dot}}</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -11,32 +11,58 @@
 
     }
 </style>
-
+    {% block title %}
+        Companies
+    {% endblock %}
 <div class="'main-area ml-4 mr-4">
     <form method="GET">
         {{filter.form | bootstrap}}
-        <button type="submit" id='myBtn' class="'btn btn-primary">Search</button>
+        <button type="submit" id='myBtn' class="'btn btn-primary center">Search</button>
     </form>
-    {% for data in filter.qs %}
-        {{ data.id }} {{ data.name }}
-    <br>
-    {% endfor %}
 
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Company</th>
+            <th scope="col">Legal Name</th>
+            <th scope="col">Dot</th>
+            <th scope="col">Address</th>
+        </tr>
+      </thead>
+        <hr>
+      <tbody>
+      {% for data in company_page_obj %}
+        <tr>
+            <th scope="row">{{forloop.counter}}</th>
+            <td><a href="{% url 'company_detail' data.id %}">{{data.name}}</a></td>
+            <td>{{data.legal_name}}</td>
+            <td>{{data.dot}}</td>
+            <td>{{data.addresses.city}}</td>
 
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
 </div>
-    <script>
-        // Get the input field
-        var input = document.getElementById("id_name__icontains");
 
-        // Execute a function when the user presses a key on the keyboard
-        input.addEventListener("keyup", function(event) {
-          // If the user presses the "Enter" key on the keyboard
-          if (event.key === "Enter") {
-            // Cancel the default action, if needed
-            event.preventDefault();
-            // Trigger the button element with a click
-            document.getElementById("myBtn").click();
-          }
-        });
-    </script>
+    <div class="'pagination d-flex justify-content-center font-weight-bold">
+        <span class="step-links">
+            {% if company_page_obj.has_previous %}
+                <a href="{% my_url 1 'page' request.GET.urlencode %}">&laquo; First</a>
+                <a href="{% my_url company_page_obj.previous_page_number 'page' request.GET.urlencode %}">&laquo; Previous  </a>
+            {% endif %}
+
+                <span class="current font-weight-bold">
+                    Page {{ company_page_obj.number  }} of {{ company_page_obj.paginator.num_pages }}.
+                </span>
+
+            {% if company_page_obj.has_next %}
+                <a href="{% my_url company_page_obj.next_page_number 'page' request.GET.urlencode %}">&raquo; Next</a>
+                <a href="{% my_url company_page_obj.paginator.num_pages 'page' request.GET.urlencode %}"> &raquo; Last</a>
+            {% endif %}
+        </span>
+    </div>
+<hr>
+
 {% endblock %}

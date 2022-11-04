@@ -20,7 +20,7 @@ class CompanyBaseModel(models.Model):
 class Company(CompanyBaseModel):
     name = models.CharField(max_length=255, blank=True, null=True)
     legal_name = models.CharField(_('Company legal name'),max_length=255)
-    dot = models.CharField(max_length=8, unique=True)
+    dot = models.IntegerField(unique=True)
     is_active = models.BooleanField(default=True)
     incorporation_date = models.DateField(_('Date of Incorporation'), blank=True, null=True)
     motor_carrier_number = models.PositiveIntegerField(null=True, blank=True, validators=(MaxValueValidator(9999999),))
