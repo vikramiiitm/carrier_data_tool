@@ -30,7 +30,7 @@ class CompanyAddress(BaseModel):
         BILLING = 'B', _('Billing Adress')
         OFFICE = 'O', _('Office Address')
 
-    address_type = models.BooleanField(choices= Address_Type_Choice.choices, default=Address_Type_Choice.BILLING, blank=True, null=True)
+    address_type = models.CharField(max_length=20 ,choices=Address_Type_Choice.choices, default=Address_Type_Choice.BILLING, blank=True, null=True)
     address_1 = models.CharField(_('Address Line 1'), max_length=1024, blank=True, null=True)
     address_2 = models.CharField(_('Address Line 2'), max_length=1024, blank=True, null=True)
     email = models.EmailField(_('Company mail'), null=True, blank=True)

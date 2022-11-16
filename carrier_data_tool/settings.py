@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,7 +27,10 @@ SECRET_KEY = 'django-insecure-(*j-xwqwfk&1@7g31)b9kf4hs022mcm*upep27j+tw920#qf^8
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
+]
 
 # Application definition
 
@@ -37,14 +41,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
     'account',
+    'corsheaders',
     'company',
+    'rest_framework',
     'phonenumber_field',
     'django_filters',
     'bootstrapform',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -131,3 +139,56 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'account.CustomUser'
 LOGIN_URL = '/login'
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    # 'DEFAULT_FILTER_BACKENDS': [
+    #     'django_filters.rest_framework.DjangoFilterBackend'
+    # ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+    ],
+
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '50000/day',  # FOR TESTING ONLY.
+        'user': '20000/day',
+        'user_sec': '50/second',
+        'anon_sec': '50/second',
+        'anon_login': '500/hour'
+    }
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
+    'ROTATE_REFRESH_TOKENS': True,
+    'UPDATE_LAST_LOGIN': True
+}
+
+JWT_AUTH = {
+    # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.serializers.jwt_response_payload_handler',
+    # 'JWT_EXPIRATION_DELTA': SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+    # 'JWT_VERIFY': True,
+    # 'JWT_VERIFY_EXPIRATION': SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+    # 'JWT_LEEWAY': 0,
+    # 'JWT_AUDIENCE': None,
+    # 'JWT_ISSUER': None,
+    # 'JWT_ALGORITHM': 'HS256',
+    # 'JWT_PRIVATE_KEY': None,
+    # 'JWT_PUBLIC_KEY': None,
+    # 'JWT_PAYLOAD_GET_USERNAME_HANDLER': 'rest_framework_jwt.utils.jwt_get_username_from_payload_handler',
+    # 'JWT_ALLOW_REFRESH': True,
+    # 'JWT_SECRET_KEY': SECRET_KEY,
+    # 'JWT_GET_USER_SECRET_KEY': 'account.custom_utils.jwt_get_secret_key',
+}

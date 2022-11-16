@@ -24,8 +24,8 @@ from account import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('account/', include('account.urls')),
-    path('company/', include('company.urls')),
+    path('api/account/', include('account.urls')),
+    path('api/company/', include('company.urls')),
     path('', RedirectView.as_view(url='/company/companies/', permanent=True))
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
