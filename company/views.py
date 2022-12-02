@@ -13,7 +13,8 @@ from .forms import CompanyForm
 # Create your views here.
 from .models import Company
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
 from .serializers import CompanySerializer, AddressSerializer
 
 
@@ -41,13 +42,22 @@ class CreateCompany(CreateAPIView):
 
             return Response(response)
 
-class CompanyList(LoginRequiredMixin, ListAPIView):
+class CompanyList(ListAPIView):
     serializer_class = CompanySerializer
-    paginate_by = 20
 
     # Overriding the get_context_data method to add filtering
     def get_queryset(self):
-        return Company.objects.all().order_by('dot')
+        qs = self.request.query_params.dict()
+        if any([True for i,j in qs.items() if j]):
+            print(123123)
+            queryset = Company.objects.filter(
+                Q(legal_name__contains=qs.get('legal_name') ) &
+                # Q(name__contains=qs.get('name')) |
+                Q(dot__contains=qs.get('dot')) &
+                Q(addresses__city__contains=qs.get('city')))
+            return queryset
+        else:
+            return Company.objects.all()
 
     # def get_context_data(self, *args, object_list=None, **kwargs):
     #     context = super().get_context_data(**kwargs)

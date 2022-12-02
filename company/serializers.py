@@ -1,7 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-
-from company.models import Company, CompanyAddress
-
+from .models import *
 
 class AddressSerializer(ModelSerializer):
 
@@ -10,13 +8,42 @@ class AddressSerializer(ModelSerializer):
         fields = ('address_type', 'address_1', 'address_2', 'email', 'city', 'state', 'zip_code', 'country',
                   'phone', 'company')
 
-
-
 class CompanySerializer(ModelSerializer):
-    address = AddressSerializer(many=True, read_only=True)
+    addresses = AddressSerializer(many=True, read_only=True)
 
     class Meta:
         model = Company
-        depth = 1
-        fields = ('dot', 'name', 'legal_name', 'is_active', 'incorporation_date', 'motor_carrier_number', 'address')
+        # depth = 1
+        fields = '__all__'
+        # fields = ('dot', 'name', 'legal_name', 'is_active', 'incorporation_date', 'motor_carrier_number', 'address', 'dba')
+
+class CargoCarriedSerialzer(ModelSerializer):
+
+    class Meta:
+        model = CargoCarried
+        fields = ('__all__')
+
+class InspectionSerializer(ModelSerializer):
+
+    class Meta:
+        model = Inspection
+        fields = ('__all__')
+
+class BasicEntitySerializer(ModelSerializer):
+
+    class Meta:
+        model = BasicsEntity
+        fields = ('__all__')
+
+class BasicSerializer(ModelSerializer):
+
+    class Meta:
+        model = Basics
+        fields = ('__all__')
+
+class OperationClasficationSerialzer(ModelSerializer):
+
+    class Meta:
+        model = OperationClasfication
+        fields = ('__all__')
 

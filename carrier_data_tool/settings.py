@@ -27,9 +27,10 @@ SECRET_KEY = 'django-insecure-(*j-xwqwfk&1@7g31)b9kf4hs022mcm*upep27j+tw920#qf^8
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://192.168.86.132:3000'
 ]
 
 # Application definition
@@ -49,6 +50,8 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_filters',
     'bootstrapform',
+    'django_celery_beat',\
+    'django_celery_results'
 ]
 
 MIDDLEWARE = [
@@ -192,3 +195,14 @@ JWT_AUTH = {
     # 'JWT_SECRET_KEY': SECRET_KEY,
     # 'JWT_GET_USER_SECRET_KEY': 'account.custom_utils.jwt_get_secret_key',
 }
+
+webKey='4ac96297a698eb309980998ca8d2f2c2594858ef'
+
+TIME_ZONE = 'US/Eastern'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672/vikram_1'
+
+CELERY_TIMEZONE = TIME_ZONE
