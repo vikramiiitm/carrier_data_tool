@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render
@@ -47,6 +49,14 @@ class CreateCompany(CreateAPIView):
 class SmallPagination(PageNumberPagination):
     page_size = 15
     max_page_size = 200
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+             ('current', self.page.number),
+             ('next', self.get_next_link()),
+             ('previous', self.get_previous_link()),
+             ('results', data)
+         ]))
 
 
 class CompanyList(ModelViewSet):
