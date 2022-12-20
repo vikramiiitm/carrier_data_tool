@@ -85,6 +85,7 @@ class CompanyList(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         dot = self.request.query_params.get('dot', None)
         legal_name = self.request.query_params.get('legal_name', None)
+        dba = self.request.query_params.get('dba', None)
         city = self.request.query_params.get('city', None)
         order_by = self.request.query_params.get('order_by')
         page_number = self.request.query_params.get('page', None)
@@ -95,6 +96,8 @@ class CompanyList(ModelViewSet):
             queryset = queryset.filter(legal_name__icontains=legal_name)
         if dot:
             queryset = queryset.filter(dot=dot)
+        if dba:
+            queryset = queryset.filter(dba__icontains=dba)
 
 
         page = self.paginate_queryset(queryset)
