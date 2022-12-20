@@ -5,8 +5,10 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, ListView, DetailView
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from .filters import CompanyFilters
 from .forms import CompanyForm
@@ -42,23 +44,56 @@ class CreateCompany(CreateAPIView):
 
             return Response(response)
 
-class CompanyList(ListAPIView):
+class SmallPagination(PageNumberPagination):
+    page_size = 15
+    max_page_size = 200
+
+
+class CompanyList(ModelViewSet):
     serializer_class = CompanySerializer
+    pagination_class = SmallPagination
 
     # Overriding the get_context_data method to add filtering
     def get_queryset(self):
         qs = self.request.query_params.dict()
-        if any([True for i,j in qs.items() if j]):
-            print(123123)
-            queryset = Company.objects.filter(
-                Q(legal_name__contains=qs.get('legal_name') ) &
-                # Q(name__contains=qs.get('name')) |
-                Q(dot__contains=qs.get('dot')) &
-                Q(addresses__city__contains=qs.get('city')))
-            return queryset
-        else:
-            return Company.objects.all()
+        if qs:
+            print('qs: ',qs)
+            page = qs.pop('page', None)
+            print('page: ',page)
+        # if any([True for i,j in qs.items() if j]):
+        #     print(123123)
+        #     queryset = Company.objects.filter(
+        #         Q(legal_name__contains=qs.get('legal_name') ) &
+        #         # Q(name__contains=qs.get('name')) |
+        #         Q(dot__contains=qs.get('dot')) &
+        #         Q(addresses__city__contains=qs.get('city')))
+        #     return queryset
+        # else:
+        return Company.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        dot = self.request.query_params.get('dot', None)
+        legal_name = self.request.query_params.get('legal_name', None)
+        city = self.request.query_params.get('city', None)
+        order_by = self.request.query_params.get('order_by')
+        page_number = self.request.query_params.get('page', None)
+
+        if order_by:
+            queryset = queryset.order_by(order_by)
+        if legal_name:
+            queryset = queryset.filter(legal_name__icontains=legal_name)
+        if dot:
+            queryset = queryset.filter(dot=dot)
+
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     # def get_context_data(self, *args, object_list=None, **kwargs):
     #     context = super().get_context_data(**kwargs)
     #     context['filter'] = CompanyFilters(self.request.GET, queryset=self.get_queryset())
@@ -69,7 +104,7 @@ class CompanyList(ListAPIView):
     #     company_page_obj = paginated_filtered_company.get_page(page_number)
     #     context['company_page_obj'] = company_page_obj
 
-        return context
+        # return context
 
 class CompanyDetailView(DetailView, LoginRequiredMixin):
     model = Company

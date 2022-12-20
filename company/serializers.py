@@ -1,3 +1,4 @@
+from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 from .models import *
 
@@ -23,10 +24,10 @@ class CargoCarriedSerialzer(ModelSerializer):
         model = CargoCarried
         fields = ('__all__')
 
-class InspectionSerializer(ModelSerializer):
+class InspectionAndSafetyMeasuresSerializer(ModelSerializer):
 
     class Meta:
-        model = Inspection
+        model = InspectionAndSafetyMeasures
         fields = ('__all__')
 
 class BasicEntitySerializer(ModelSerializer):

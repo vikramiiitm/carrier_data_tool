@@ -12,17 +12,23 @@ admin.site.register(CompanyAddress)
 
 admin.site.register(CompanyRepresentative)
 
-admin.site.register(Basics)
+@admin.register(Basics)
+class BsicsAdmin(admin.ModelAdmin):
+    list_display = ('company', 'basics_id')
 
 @admin.register(OperationClasfication)
 class OperationClassificationAdmin(admin.ModelAdmin):
     list_display = ('operaton_classfication_id', 'company', 'operation_classification_description')
 
-
+@admin.register(InspectionAndSafetyMeasures)
+class InspectionAndSafetyMeasuresAdmin(admin.ModelAdmin):
+    list_display = ('company', 'hazmat')
 admin.site.register(LicensingAndInsurence)
 
-admin.site.register(CargoCarried)
+@admin.register(CargoCarried)
+class CargoCarrierAdmin(admin.ModelAdmin):
+    list_display = ('company', 'description')
 
-admin.site.register(BasicsEntity)
-
-admin.site.register(Inspection)
+@admin.register(BasicsEntity)
+class BasicsEntityAdmin(admin.ModelAdmin):
+    list_display = ('basics', 'code')

@@ -85,27 +85,33 @@ class BasicsEntity(models.Model):
     short_description = models.CharField(max_length=100, blank=True, null=True)
     basics = models.OneToOneField(Basics, on_delete=models.CASCADE, related_name='basics_entity')
 
+class Hazmat(models.TextChoices):
+    HAZMAT = 'H', _('HAZMAT')
+    NON_HAZMAT = 'N', _('NON_HAZMAT')
 
-class Inspection(models.Model):
-    class inspection_type(models.TextChoices):
-        VEHICLE = 'V', _('VEHICLE')
-        DRIVER = 'D', _('DRIVER')
-        HAZMAT = 'H', _('HAZMAT')
+class InspectionAndSafetyMeasures(models.Model):
 
-    class country(models.TextChoices):
-        USA = 'U', _('USA')
-        CANADA = 'C', _('CANADA')
-
-    type = models.CharField(max_length=20, choices=inspection_type.choices)
-    country = models.CharField(max_length=20, choices=country.choices, blank=True, null=True)
-    Inspections = models.IntegerField(blank=True, null=True)
-    oos = models.IntegerField(blank=True, null=True)
-    oos_percent = models.FloatField(blank=True, null=True)
-    national_average = models.FloatField(blank=True, null=True)
-    company = models.ForeignKey(Company, related_name='inspection', on_delete=models.CASCADE)
+    hazmat = models.CharField(max_length=20, choices=Hazmat.choices, default=Hazmat.HAZMAT)
+    inspection_total = models.IntegerField(blank=True, null=True)
+    driver_inspection_total = models.IntegerField(blank=True, null=True)
+    driver_oos_inspection_total = models.IntegerField(blank=True, null=True)
+    vehicle_inspection_total = models.IntegerField(blank=True, null=True)
+    vehicle_oos_inspection_total = models.IntegerField(blank=True, null=True)
+    unsafe_driver_inspection_violation = models.IntegerField(blank=True, null=True)
+    unsafe_driver_measure = models.IntegerField(blank=True, null=True)
+    hos_driver_inspection_violation = models.IntegerField(blank=True, null=True)
+    hos_driver_measure = models.IntegerField(blank=True, null=True)
+    driver_fit_inspection_violation = models.IntegerField(blank=True, null=True)
+    driver_fit_measure = models.IntegerField(blank=True, null=True)
+    contr_subst_inspection_violation = models.IntegerField(blank=True, null=True)
+    contr_subst_measure = models.IntegerField(blank=True, null=True)
+    vehicle_maintenance_violation = models.IntegerField(blank=True, null=True)
+    vehicle_maintenance_measure = models.IntegerField(blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('type', 'company')
+        unique_together = ('company', 'hazmat')
+
 
 class CargoCarried(models.Model):
     cargo_id = models.IntegerField()
