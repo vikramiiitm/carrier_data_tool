@@ -47,11 +47,12 @@ class CreateCompany(CreateAPIView):
             return Response(response)
 
 class SmallPagination(PageNumberPagination):
-    page_size = 15
+    page_size = 20
     max_page_size = 200
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
+             ('lastPage', self.page.paginator.count),
              ('current', self.page.number),
              ('next', self.get_next_link()),
              ('previous', self.get_previous_link()),
@@ -87,6 +88,7 @@ class CompanyList(ModelViewSet):
         legal_name = self.request.query_params.get('legal_name', None)
         dba = self.request.query_params.get('dba', None)
         city = self.request.query_params.get('city', None)
+        state = self.request.query_params.get('state', None)
         order_by = self.request.query_params.get('order_by')
         page_number = self.request.query_params.get('page', None)
 
@@ -98,6 +100,10 @@ class CompanyList(ModelViewSet):
             queryset = queryset.filter(dot=dot)
         if dba:
             queryset = queryset.filter(dba__icontains=dba)
+        if city:
+            queryset = queryset.filter(addresses__city__icontains=city)
+        if state:
+            queryset = queryset.filter(state__icontains=city)
 
 
         page = self.paginate_queryset(queryset)
