@@ -460,8 +460,8 @@ def update_leads():
     for key, value in df.iterrows():
         dot = value.get('DOT_NUMBER')
         print('hazmat dot: ', dot)
-        if dot>1003210:
-            break
+        # if dot>1003210:
+        #     break
 
         try:
             comp_obj = Company.objects.get(dot=dot)
@@ -541,8 +541,8 @@ def update_leads():
     for key, value in df.iterrows():
         dot = value.get('DOT_NUMBER')
         print('non_hazmat dot, Count: ',i)
-        if dot>1003210:
-            break
+        # if dot>1003210:
+        #     break
         try:
             comp_obj = Company.objects.get(dot=dot)
             if comp_obj:

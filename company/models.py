@@ -41,6 +41,7 @@ class CompanyAddress(BaseModel):
     country = models.CharField(_('Country'), max_length=100)
     phone = PhoneNumberField(_('Phone Number'), blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='addresses')
+    total_driver = models.IntegerField(null=True, blank=True)
 
 
 class LicensingAndInsurence(models.Model):
@@ -50,7 +51,7 @@ class LicensingAndInsurence(models.Model):
 class OperationClasfication(models.Model):
     operaton_classfication_id = models.IntegerField()
     operation_classification_description = models.CharField(max_length=100,blank=True, null=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='operaton_classfication')
 
 class CompanyRepresentative(BaseModel):
     email = models.EmailField(_('Representative mail'), null=True, blank=True)
@@ -107,7 +108,7 @@ class InspectionAndSafetyMeasures(models.Model):
     contr_subst_measure = models.IntegerField(blank=True, null=True)
     vehicle_maintenance_violation = models.IntegerField(blank=True, null=True)
     vehicle_maintenance_measure = models.IntegerField(blank=True, null=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='inspection_safety')
 
     class Meta:
         unique_together = ('company', 'hazmat')
@@ -116,7 +117,7 @@ class InspectionAndSafetyMeasures(models.Model):
 class CargoCarried(models.Model):
     cargo_id = models.IntegerField()
     description = models.CharField(max_length=255, blank=True, null=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='cargo')
 
 # class SafetRating(models.Model):
 #     safety_rating = models.Ch

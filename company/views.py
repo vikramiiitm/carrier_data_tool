@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, ListView, DetailView
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.views import APIView
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -52,7 +54,7 @@ class SmallPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
-             ('lastPage', self.page.paginator.count),
+             ('lastPage', (self.page.paginator.count)//20+1),
              ('current', self.page.number),
              ('next', self.get_next_link()),
              ('previous', self.get_previous_link()),
@@ -92,6 +94,16 @@ class CompanyList(ModelViewSet):
         order_by = self.request.query_params.get('order_by')
         page_number = self.request.query_params.get('page', None)
 
+        privateOp = self.request.query_params.get('privateOp', None)
+        migrantOp = self.request.query_params.get('migrantOp', None)
+        exemptOp = self.request.query_params.get('exemptOp', None)
+        authorityOp = self.request.query_params.get('authorityOp', None)
+        otherOp = self.request.query_params.get('otherOp', None)
+
+        # cargo
+        cargo = self.request.query_params.get('cargo')
+        basicThreshold = self.request.query_params.get('basicThreshold')
+
         if order_by:
             queryset = queryset.order_by(order_by)
         if legal_name:
@@ -103,8 +115,34 @@ class CompanyList(ModelViewSet):
         if city:
             queryset = queryset.filter(addresses__city__icontains=city)
         if state:
-            queryset = queryset.filter(state__icontains=city)
+            queryset = queryset.filter(addresses__state__icontains=state)
 
+        if cargo:
+            queryset = queryset.filter(cargo__description__icontains=cargo)
+
+        if basicThreshold:
+            queryset = queryset.filter(basics__total_violation__icontains='Authorized For Hire')
+        # op classification
+        if authorityOp:
+            print('authorityOp:',authorityOp)
+            if authorityOp.strip() not in 'false':
+                print('authority')
+                queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Authorized For Hire')
+        if migrantOp:
+            if migrantOp.strip() not in 'false':
+                print('inside migratnt')
+                queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Migrant')
+        if exemptOp:
+            if exemptOp.strip() not in 'false':
+                queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Exempt For Hire')
+        if otherOp:
+            if otherOp.strip() not in 'false':
+                print('inside other')
+                queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Other')
+        if privateOp:
+            if privateOp.strip() not in 'false':
+                print('inside other')
+                queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Private')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -125,7 +163,5 @@ class CompanyList(ModelViewSet):
 
         # return context
 
-class CompanyDetailView(DetailView, LoginRequiredMixin):
-    model = Company
-    template_name = 'company_detail.html'
-    context_object_name = 'company_data'
+class CompanyDetailView(APIView):
+    pass

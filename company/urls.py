@@ -8,7 +8,6 @@ router = DefaultRouter()
 router.register('companies', views.CompanyList, basename='company')
 urlpatterns = [
     path('add-company/', views.CreateCompany.as_view(), name='add_company'),
-    # path('companies/', views.CompanyList.as_view(), name='list_company'),
-    path('company/<slug:pk>/', views.CompanyDetailView.as_view(), name='company_detail'),
+    # path('company/<slug:pk>/', views.CompanyDetailView.as_view(), name='company_detail'),
 ]
 urlpatterns += router.urls

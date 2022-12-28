@@ -5,7 +5,8 @@ from django.http import HttpResponse, JsonResponse, request, HttpResponseRedirec
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenVerifySerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView
 from .exceptions import *
 from carrier_data_tool.utils import set_username
 from . import forms
@@ -48,3 +49,8 @@ class UserObtainTokenPairView(TokenObtainPairView):
         except TokenError as e:
             raise InvalidToken(e.args[0])
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class UserTokenVerifyView(TokenVerifyView):
+    permission_classes = (AllowAny,)
+    serializer_class = TokenVerifySerializer

@@ -4,9 +4,9 @@ from company.models import *
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    fields = ('name', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number')
+    fields = ('dba', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number')
     list_display = ('id', 'name', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number')
-    search_fields = ('dot', 'legal_name', 'is_active')
+    search_fields = ('id','dot', 'legal_name', 'is_active')
 
 admin.site.register(CompanyAddress)
 
@@ -18,7 +18,9 @@ class BsicsAdmin(admin.ModelAdmin):
 
 @admin.register(OperationClasfication)
 class OperationClassificationAdmin(admin.ModelAdmin):
+    # fields = ('operaton_classfication_id', 'company', 'operation_classification_description')
     list_display = ('operaton_classfication_id', 'company', 'operation_classification_description')
+    search_fields = ('operaton_classfication_id', 'company', 'operation_classification_description')
 
 @admin.register(InspectionAndSafetyMeasures)
 class InspectionAndSafetyMeasuresAdmin(admin.ModelAdmin):
