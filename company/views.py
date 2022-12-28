@@ -124,24 +124,20 @@ class CompanyList(ModelViewSet):
             queryset = queryset.filter(basics__total_violation__icontains='Authorized For Hire')
         # op classification
         if authorityOp:
-            print('authorityOp:',authorityOp)
             if authorityOp.strip() not in 'false':
                 print('authority')
                 queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Authorized For Hire')
         if migrantOp:
             if migrantOp.strip() not in 'false':
-                print('inside migratnt')
                 queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Migrant')
         if exemptOp:
             if exemptOp.strip() not in 'false':
                 queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Exempt For Hire')
         if otherOp:
             if otherOp.strip() not in 'false':
-                print('inside other')
                 queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Other')
         if privateOp:
             if privateOp.strip() not in 'false':
-                print('inside other')
                 queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Private')
 
         page = self.paginate_queryset(queryset)
