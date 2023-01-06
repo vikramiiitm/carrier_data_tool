@@ -34,3 +34,7 @@ class CargoCarrierAdmin(admin.ModelAdmin):
 @admin.register(BasicsEntity)
 class BasicsEntityAdmin(admin.ModelAdmin):
     list_display = ('basics', 'code')
+
+@admin.register(InsuranceHistory)
+class BasicsEntityAdmin(admin.ModelAdmin):
+    list_display = ('form', 'type', 'policy_surety', 'company')

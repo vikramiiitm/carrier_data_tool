@@ -100,6 +100,13 @@ class CompanyList(ModelViewSet):
         authorityOp = self.request.query_params.get('authorityOp', None)
         otherOp = self.request.query_params.get('otherOp', None)
 
+        minInsp = self.request.query_params.get('minInsp', None)
+        maxInsp = self.request.query_params.get('maxInsp', None)
+        vehInspMin = self.request.query_params.get('vehInspMin', None)
+        vehInspMax = self.request.query_params.get('vehInspMax', None)
+        driverInspMin = self.request.query_params.get('driverInspMin', None)
+        driverInspMax = self.request.query_params.get('driverInspMax', None)
+
         # cargo
         cargo = self.request.query_params.get('cargo')
         basicThreshold = self.request.query_params.get('basicThreshold')
@@ -139,6 +146,27 @@ class CompanyList(ModelViewSet):
         if privateOp:
             if privateOp.strip() not in 'false':
                 queryset = queryset.filter(operaton_classfication__operation_classification_description__icontains='Private')
+
+        if minInsp is not None:
+            if minInsp.strip() not in ['undefined', '']:
+                print('minInsp:::', minInsp)
+                queryset = queryset.filter(inspection_safety__inspection_total__gte=minInsp)
+        if maxInsp is not None:
+            if maxInsp.strip() not in ['undefined', '']:
+                queryset = queryset.filter(inspection_safety__inspection_total__lte=maxInsp)
+        if vehInspMin is not None:
+            if vehInspMin.strip() not in ['undefined', '']:
+                queryset = queryset.filter(inspection_safety__vehicle_inspection_total__gte=vehInspMin)
+        if vehInspMax is not None:
+            if vehInspMax.strip() not in ['undefined', '']:
+                queryset = queryset.filter(inspection_safety__vehicle_inspection_total__lte=vehInspMax)
+        if driverInspMin is not None:
+            if driverInspMin.strip() not in ['undefined', '']:
+                queryset = queryset.filter(inspection_safety__driver_inspection_total__gte=driverInspMin)
+        if driverInspMax is not None:
+            if driverInspMax.strip() not in ['undefined', '']:
+                queryset = queryset.filter(inspection_safety__driver_inspection_total__lte=driverInspMax)
+
 
         page = self.paginate_queryset(queryset)
         if page is not None:

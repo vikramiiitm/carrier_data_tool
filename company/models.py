@@ -26,6 +26,15 @@ class Company(CompanyBaseModel):
     incorporation_date = models.DateField(_('Date of Incorporation'), blank=True, null=True)
     motor_carrier_number = models.PositiveIntegerField(null=True, blank=True, validators=(MaxValueValidator(9999999),))
 
+    ein = models.IntegerField(null=True, blank=True)
+    census_type= models.CharField(max_length=20, blank=True, null=True)
+    total_driver = models.IntegerField(null=True, blank=True)
+    carrier_operation = models.CharField(max_length=50, blank=True, null=True)
+    common_authority_status = models.CharField(max_length=5, blank=True, null=True)
+    contract_authority_status = models.CharField(max_length=5, blank=True, null=True)
+    docket_number = models.CharField(max_length=15, blank=True, null=True)
+
+
 class CompanyAddress(BaseModel):
     class Address_Type_Choice(models.TextChoices):
         BILLING = 'B', _('Billing Adress')
@@ -36,17 +45,22 @@ class CompanyAddress(BaseModel):
     address_2 = models.CharField(_('Address Line 2'), max_length=1024, blank=True, null=True)
     email = models.EmailField(_('Company mail'), null=True, blank=True)
     city = models.CharField(_('City'), max_length=100)
+    street = models.CharField(_('Street'), max_length=100, null=True, blank=True)
     state = models.CharField(_('State'), max_length=50)
     zip_code = models.CharField(_('Zip / Postal Code'), max_length=10)
     country = models.CharField(_('Country'), max_length=100)
     phone = PhoneNumberField(_('Phone Number'), blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='addresses')
-    total_driver = models.IntegerField(null=True, blank=True)
 
 
 class LicensingAndInsurence(models.Model):
     company = models.OneToOneField(Company, related_name='insurance', on_delete=models.CASCADE)
-    # bipdInsuranceOnFile =
+    bipdInsuranceRequired = models.CharField(max_length=5, null=True, blank=True)
+    bipdInsuranceOnFile = models.IntegerField(null=True, blank=True)
+    bipdRequiredAmount = models.IntegerField(null=True, blank=True)
+    bondInsuranceOnFile = models.IntegerField(null=True, blank=True)
+    bondInsuranceRequired = models.CharField(max_length=5, null=True, blank=True)
+
 
 class OperationClasfication(models.Model):
     operaton_classfication_id = models.IntegerField()
@@ -121,3 +135,15 @@ class CargoCarried(models.Model):
 
 # class SafetRating(models.Model):
 #     safety_rating = models.Ch
+
+
+class InsuranceHistory(models.Model):
+    form = models.CharField(max_length=20)
+    type = models.CharField(max_length=50)
+    insurance_carrier = models.CharField(max_length=255, blank=True, null=True)
+    policy_surety = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    coverage_from = models.CharField(max_length=10)
+    coverage_to = models.CharField(max_length=10)
+    effective_date_from = models.DateField(null=True, blank=True)
+    effective_date_to = models.DateField(null=True, blank=True)
+    company = models.ForeignKey(Company, related_name='insurance_history', on_delete=models.CASCADE)

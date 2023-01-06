@@ -6,8 +6,10 @@ import socket
 import ssl
 import threading
 import zipfile
+import datetime
 from pathlib import Path
 from threading import Thread
+from traceback import format_exc
 
 from bs4 import BeautifulSoup
 from dateutil import parser
@@ -15,6 +17,10 @@ from typing import Optional
 import requests
 from requests.adapters import HTTPAdapter, DEFAULT_POOLBLOCK, PoolManager
 from carrier_data_tool.celery_app import app
+
+from twocaptcha import TwoCaptcha
+from bs4 import BeautifulSoup
+import pandas as pd
 
 from company.serializers import *
 BASE_URL = 'https://mobile.fmcsa.dot.gov/qc/services'
@@ -155,6 +161,12 @@ def create_database(carrier_data, operation_class_data, basics_data, oos_data, c
                 serializer = CompanySerializer(data=data)
                 serializer.is_valid(raise_exception=True)
                 company_obj = serializer.save()
+
+                # calling async task to get insurance data from fmcsa
+                try:
+                    Insurance_history.delay(data['dot'])
+                except Exception as exc:
+                    logger.info(f'some error occurred in creating insurance data: {str(exc)}')
             except:
                 return
             data.clear()
@@ -279,7 +291,7 @@ def get_leads(self):
     threads = list()
     batchsize = 10 #don't change
     try:
-        for i in range(1000000, 9999999, batchsize):
+        for i in range(3333450, 3333460, batchsize):
             print('batch: ', batchsize)
             for j in range(i,i+batchsize):
                 x = threading.Thread(target=thread_create_leads, args=(bot, j))
@@ -611,3 +623,119 @@ def update_leads():
             pass
     end = time.time()
     print('total time: ',end - start)
+
+
+
+'''Insurance Data Fetching'''
+def SolveCaptcha():
+    solver = TwoCaptcha('77709a0c702e02bae50bc25b8902456c')
+
+    result = solver.solve_captcha(
+        site_key='6Ldbx1gUAAAAAMEylxZ_DoZS430WhNsmV47Y5t58',
+        page_url='https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist'
+    )
+    return result
+
+def find_payload():
+    try:
+        with open("get_detail.html") as f:
+            soup = BeautifulSoup(f, 'html.parser')
+            legal_name = soup.find_all('input', {'name':'pv_legal_name'})[0].get('value')
+            docket_number = soup.find_all('input', {'name':'pv_pref_docket'})[0].get('value')
+            pv_vpath = soup.find_all('input', {'name':'pv_vpath'})[0].get('value')
+            logger.info(f'docket_number, legal_name, pv_vpath: {docket_number, legal_name, pv_vpath}')
+            return docket_number,legal_name, pv_vpath
+    except:
+        return None, None, None
+def read_Insurance_from_html():
+    df  = pd.read_html('Insurance.html', flavor='bs4')
+    insurance_data = df[4]
+    logger.info(df[4])
+    return df[4]
+
+def find_applicant_id():
+    with open("carrlist.html") as f:
+        soup = BeautifulSoup(f, 'html.parser')
+        try:
+            return soup.find('input', {'name':'pv_apcant_id'}).get('value')
+        except:
+            return 'apcant_id_error'
+
+@app.task()
+def Insurance_history(dot):
+    # step1 carrlist
+    url = "https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_carrlist"
+    captcha = SolveCaptcha()
+    payload={
+        'n_dotno': dot,
+        's_prefix': '',
+        'n_docketno': '',
+        's_legalname': '',
+        's_state': '',
+        'pv_vpath': 'LIVIEW',
+        'g_recaptcha_response':captcha
+        }
+    files=[
+    ]
+    headers = {}
+    session = requests.Session()
+    response = session.request("POST", url, headers=headers, data=payload, files=files)
+    with open("carrlist.html", "w") as f:
+        f.write(response.text)
+    # step2: Find pv_apcant_id and request get_detail
+    pv_apcant_id = find_applicant_id()
+    logger.info(f'pv_apcant_id: {pv_apcant_id}')
+    if pv_apcant_id != 'apcant_id_error':
+        payload = {
+            'pv_apcant_id': pv_apcant_id,
+            'pv_vpath': 'LIVIEW'
+        }
+        url_detail = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_getdetail'
+        response = session.request("POST", url_detail, headers=headers, data=payload, files=files)
+
+        with open("get_detail.html", "w") as f:
+            f.write(response.text)
+
+        docket_number, legal_name, pv_vpath = find_payload() #it uses get_detail.html
+
+    #step 3 get Insurance History
+        if docket_number and legal_name and pv_vpath:
+            payload = {
+                'pv_apcant_id': pv_apcant_id,
+                'pv_legal_name': legal_name,
+                'pv_pref_docket': docket_number,
+                'pv_usdot_no': dot,
+                'pv_vpath': 'LIVIEW'
+            }
+            insurance_history_url = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_insurancehistory'
+            response = session.request('POST', insurance_history_url, headers=headers, data=payload, files=files)
+
+            with open("Insurance.html", "w") as f:
+                f.write(response.text)
+
+            df = read_Insurance_from_html()
+            # Create Company Insurance data
+            company_obj = Company.objects.get(dot=dot)
+
+            for key, value in df.iterrows():
+                try:
+                    a,b,c = value.get('Effective Date To').split('/')
+                    c = c[0:4]
+                    date_to = f'{a}/{b}/{c}'
+                    data = {
+                        'form' : value.get('Form'),
+                        'type' : value.get('Type'),
+                        'insurance_carrier' : value.get('Insurance Carrier'),
+                        'policy_surety' : value.get('Policy/Surety'),
+                        'coverage_from' : value.get('Coverage From'),
+                        'coverage_to' : value.get('Coverage To'),
+
+                        'effective_date_from' : datetime.datetime.strptime(value.get('Effective Date From'), '%m/%d/%Y').date(),
+                        'effective_date_to' : datetime.datetime.strptime(date_to, '%m/%d/%Y').date(),
+                        'company' : company_obj.id
+                    }
+                    insurance_serializer = InsuranceHistorySerializer(data=data)
+                    insurance_serializer.is_valid(raise_exception=True)
+                    insurance_serializer.save()
+                except Exception as exc:
+                    logger.info(f'Error occorred in created insurance data for dot {dot}: {str(exc)}')
