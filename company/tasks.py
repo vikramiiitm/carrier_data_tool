@@ -542,8 +542,6 @@ def update_leads():
         except:
             pass
 
-
-
     df = pd.read_csv(non_hazmat_file)
     print(df.head(4))
     i = 0
@@ -732,6 +730,7 @@ def Insurance_history(dot):
 
                         'effective_date_from' : datetime.datetime.strptime(value.get('Effective Date From'), '%m/%d/%Y').date(),
                         'effective_date_to' : datetime.datetime.strptime(date_to, '%m/%d/%Y').date(),
+                        'status':c[4:] if c[4:] else None,
                         'company' : company_obj.id
                     }
                     insurance_serializer = InsuranceHistorySerializer(data=data)

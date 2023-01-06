@@ -147,3 +147,4 @@ class InsuranceHistory(models.Model):
     effective_date_from = models.DateField(null=True, blank=True)
     effective_date_to = models.DateField(null=True, blank=True)
     company = models.ForeignKey(Company, related_name='insurance_history', on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, null=True, blank=True)
