@@ -4,8 +4,8 @@ from company.models import *
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    fields = ('dba', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number')
-    list_display = ('id', 'name', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number')
+    fields = ('dba', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number', 'phone')
+    list_display = ('id', 'name', 'legal_name', 'dot', 'phone', 'is_active', 'incorporation_date', 'motor_carrier_number')
     search_fields = ('id','dot', 'legal_name', 'is_active')
 
 admin.site.register(CompanyAddress)
@@ -38,3 +38,7 @@ class BasicsEntityAdmin(admin.ModelAdmin):
 @admin.register(InsuranceHistory)
 class BasicsEntityAdmin(admin.ModelAdmin):
     list_display = ('form', 'type', 'policy_surety', 'company')
+
+@admin.register(Crash)
+class BasicsEntityAdmin(admin.ModelAdmin):
+    list_display = ('crash_total', 'company')

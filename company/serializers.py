@@ -6,8 +6,7 @@ class AddressSerializer(ModelSerializer):
 
     class Meta:
         model = CompanyAddress
-        fields = ('address_type', 'address_1', 'address_2', 'email', 'street', 'city', 'state', 'zip_code', 'country',
-                  'phone', 'company')
+        fields = ('address_type', 'address_1', 'address_2', 'email', 'street', 'city', 'state', 'zip_code', 'country', 'company')
 
 class CargoCarriedSerialzer(ModelSerializer):
 
@@ -45,11 +44,19 @@ class InsuranceHistorySerializer(ModelSerializer):
         model = InsuranceHistory
         fields = ('__all__')
 
+class CrashSerializer(ModelSerializer):
+    class Meta:
+        model = Crash
+        fields = ('__all__')
+
 class CompanySerializer(ModelSerializer):
     addresses = AddressSerializer(many=True, read_only=True)
     cargo = CargoCarriedSerialzer(many=True, read_only=True)
     inspection_safety = InspectionAndSafetyMeasuresSerializer(many=True, read_only=True)
     basics = BasicSerializer(many=True, read_only=True)
+    crashes = CrashSerializer(read_only=True)
+    insurance_history = InsuranceHistorySerializer(many=True, read_only=True)
+    # insurance
     class Meta:
         model = Company
         # depth = 1

@@ -164,7 +164,8 @@ def create_database(carrier_data, operation_class_data, basics_data, oos_data, c
 
                 # calling async task to get insurance data from fmcsa
                 try:
-                    Insurance_history.delay(data['dot'])
+                    dot = data['dot']
+                    Insurance_history.delay(dot=dot)
                 except Exception as exc:
                     logger.info(f'some error occurred in creating insurance data: {str(exc)}')
             except:
@@ -183,6 +184,15 @@ def create_database(carrier_data, operation_class_data, basics_data, oos_data, c
             serializer.save()
             data.clear()
 
+            #Crash Data
+            data['crash_total'] = carrier_data.get('crashTotal')
+            data['fatal_crash'] = carrier_data.get('crashTotal')
+            data['injury_crash'] = carrier_data.get('crashTotal')
+            data['towaway_crash'] = carrier_data.get('crashTotal')
+            data['company'] = company_obj.id
+            serializer = CrashSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
     #OPERATION CLASSIFICATION
     operation_class_data = operation_class_data['content']
     count = 0
@@ -291,7 +301,7 @@ def get_leads(self):
     threads = list()
     batchsize = 10 #don't change
     try:
-        for i in range(3333450, 3333460, batchsize):
+        for i in range(3333460, 3333470, batchsize):
             print('batch: ', batchsize)
             for j in range(i,i+batchsize):
                 x = threading.Thread(target=thread_create_leads, args=(bot, j))
@@ -645,6 +655,12 @@ def find_payload():
             return docket_number,legal_name, pv_vpath
     except:
         return None, None, None
+def get_address_phone_from_detail_page():
+    df = pd.read_html('get_detail.html', flavor='bs4')
+    logger.info(f'phone df: {df}')
+    logger.info(f'phone df: {df[5]}')
+    return df[5]
+
 def read_Insurance_from_html():
     df  = pd.read_html('Insurance.html', flavor='bs4')
     insurance_data = df[4]
@@ -683,6 +699,10 @@ def Insurance_history(dot):
     # step2: Find pv_apcant_id and request get_detail
     pv_apcant_id = find_applicant_id()
     logger.info(f'pv_apcant_id: {pv_apcant_id}')
+
+    #apcant id is error call insurance apui again with the dot
+    # if pv_apcant_id == 'apcant_id_error':
+    #     Insurance_history.delay(dot)
     if pv_apcant_id != 'apcant_id_error':
         payload = {
             'pv_apcant_id': pv_apcant_id,
@@ -715,6 +735,17 @@ def Insurance_history(dot):
             # Create Company Insurance data
             company_obj = Company.objects.get(dot=dot)
 
+            # create company phone from detail page
+            phone_df = get_address_phone_from_detail_page()
+            try:
+                for k, v in phone_df.iterrows():
+                    v = v.get('BusinessTelephone and Fax')
+                    phone = str(v)[:14]
+            except:
+                phone = None
+            if phone is not None:
+                company_obj.phone = str(phone)
+                company_obj.save()
             for key, value in df.iterrows():
                 try:
                     a,b,c = value.get('Effective Date To').split('/')
@@ -737,4 +768,4 @@ def Insurance_history(dot):
                     insurance_serializer.is_valid(raise_exception=True)
                     insurance_serializer.save()
                 except Exception as exc:
-                    logger.info(f'Error occorred in created insurance data for dot {dot}: {str(exc)}')
+                    logger.info(f'Error occurred in created insurance data for dot {dot}: {str(exc)}')

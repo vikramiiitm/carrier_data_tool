@@ -33,6 +33,7 @@ class Company(CompanyBaseModel):
     common_authority_status = models.CharField(max_length=5, blank=True, null=True)
     contract_authority_status = models.CharField(max_length=5, blank=True, null=True)
     docket_number = models.CharField(max_length=15, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
 
 
 class CompanyAddress(BaseModel):
@@ -49,7 +50,6 @@ class CompanyAddress(BaseModel):
     state = models.CharField(_('State'), max_length=50)
     zip_code = models.CharField(_('Zip / Postal Code'), max_length=10)
     country = models.CharField(_('Country'), max_length=100)
-    phone = PhoneNumberField(_('Phone Number'), blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='addresses')
 
 
@@ -148,3 +148,10 @@ class InsuranceHistory(models.Model):
     effective_date_to = models.DateField(null=True, blank=True)
     company = models.ForeignKey(Company, related_name='insurance_history', on_delete=models.CASCADE)
     status = models.CharField(max_length=20, null=True, blank=True)
+
+class Crash(models.Model):
+    crash_total = models.IntegerField()
+    fatal_crash = models.IntegerField()
+    injury_crash = models.IntegerField()
+    towaway_crash = models.IntegerField()
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name='crashes')

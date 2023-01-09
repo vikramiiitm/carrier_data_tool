@@ -82,7 +82,7 @@ class CompanyList(ModelViewSet):
         #         Q(addresses__city__contains=qs.get('city')))
         #     return queryset
         # else:
-        return Company.objects.all()
+        return Company.objects.all().order_by('-dot')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
