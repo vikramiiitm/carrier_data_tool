@@ -107,6 +107,20 @@ class CompanyList(ModelViewSet):
         driverInspMin = self.request.query_params.get('driverInspMin', None)
         driverInspMax = self.request.query_params.get('driverInspMax', None)
 
+        totalCrashMin = self.request.query_params.get('totalCrashMin', None)
+        totalCrashMax = self.request.query_params.get('totalCrashMax', None)
+        fatalCrashMin = self.request.query_params.get('fatalCrashMin', None)
+        fatalCrashMax = self.request.query_params.get('fatalCrashMax', None)
+        towawayCrashMin = self.request.query_params.get('towawayCrashMin', None)
+        towawayCrashMax = self.request.query_params.get('towawayCrashMax', None)
+        injuryCrashMin = self.request.query_params.get('injuryCrashMin', None)
+        injuryCrashMax = self.request.query_params.get('injuryCrashMax', None)
+
+        print(f'totalCrashMin: {totalCrashMin} \n totalCrashMax: {totalCrashMax} \n '
+              f'fatalCrashMin: {fatalCrashMin}\nfatalCrashMax: {fatalCrashMax}\n'
+              f'towawayCrashMin: {towawayCrashMin}\ntowawayCrashMax: {towawayCrashMax}\n'
+              f'injuryCrashMin: {injuryCrashMin}\ninjuryCrashMax: {injuryCrashMax}')
+
         # cargo
         cargo = self.request.query_params.get('cargo')
         basicThreshold = self.request.query_params.get('basicThreshold')
@@ -167,6 +181,27 @@ class CompanyList(ModelViewSet):
             if driverInspMax.strip() not in ['undefined', '']:
                 queryset = queryset.filter(inspection_safety__driver_inspection_total__lte=driverInspMax)
 
+        # crashes
+        # if totalCrashMin:
+        #     if totalCrashMin != 'undefined':
+        #         queryset.filter(crashes__crash_total__gte=totalCrashMin)
+        # if totalCrashMax:
+        #             queryset.filter(crashes__crash_total__lte=totalCrashMax)
+        #
+        # if injuryCrashMin:
+        #             queryset.filter(crashes__injury_crash__gte=injuryCrashMin)
+        # if injuryCrashMax:
+        #             queryset.filter(crashes__injury_crash__lte=injuryCrashMax)
+        #
+        # if fatalCrashMin:
+        #             queryset.filter(crashes__fatal_crash__gte=fatalCrashMin)
+        # if fatalCrashMax:
+        #             queryset.filter(crashes__fatal_crash__gte=fatalCrashMax)
+        #
+        # if towawayCrashMin:
+        #             queryset.filter(crashes__towaway_crash__gte=towawayCrashMin)
+        # if towawayCrashMax:
+        #             queryset.filter(crashes__towaway_crash__gte=towawayCrashMax)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
