@@ -4,8 +4,8 @@ from company.models import *
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    fields = ('dba', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number', 'phone')
-    list_display = ('id', 'name', 'legal_name', 'dot', 'phone', 'is_active', 'incorporation_date', 'motor_carrier_number')
+    fields = ('dba', 'legal_name', 'dot', 'is_active', 'incorporation_date', 'motor_carrier_number', 'phone', 'total_driver')
+    list_display = ('id', 'name', 'legal_name', 'dot', 'phone', 'is_active', 'incorporation_date', 'motor_carrier_number', 'total_driver')
     search_fields = ('id','dot', 'legal_name', 'is_active')
 
 admin.site.register(CompanyAddress)

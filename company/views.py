@@ -182,26 +182,37 @@ class CompanyList(ModelViewSet):
                 queryset = queryset.filter(inspection_safety__driver_inspection_total__lte=driverInspMax)
 
         # crashes
-        # if totalCrashMin:
-        #     if totalCrashMin != 'undefined':
-        #         queryset.filter(crashes__crash_total__gte=totalCrashMin)
-        # if totalCrashMax:
-        #             queryset.filter(crashes__crash_total__lte=totalCrashMax)
-        #
-        # if injuryCrashMin:
-        #             queryset.filter(crashes__injury_crash__gte=injuryCrashMin)
-        # if injuryCrashMax:
-        #             queryset.filter(crashes__injury_crash__lte=injuryCrashMax)
-        #
-        # if fatalCrashMin:
-        #             queryset.filter(crashes__fatal_crash__gte=fatalCrashMin)
-        # if fatalCrashMax:
-        #             queryset.filter(crashes__fatal_crash__gte=fatalCrashMax)
-        #
-        # if towawayCrashMin:
-        #             queryset.filter(crashes__towaway_crash__gte=towawayCrashMin)
-        # if towawayCrashMax:
-        #             queryset.filter(crashes__towaway_crash__gte=towawayCrashMax)
+        if totalCrashMin:
+            if totalCrashMin.strip() not in ['undefined', '']:
+                print(queryset.filter(crashes__crash_total__gte=totalCrashMin).count())
+                queryset = queryset.filter(crashes__crash_total__gte=totalCrashMin)
+        if totalCrashMax:
+            if totalCrashMax.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__crash_total__lte=totalCrashMax)
+
+        if injuryCrashMin:
+            if injuryCrashMin.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__injury_crash__gte=injuryCrashMin)
+
+        if injuryCrashMax:
+            if injuryCrashMax.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__injury_crash__lte=injuryCrashMax)
+
+        if fatalCrashMin:
+            if fatalCrashMin.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__fatal_crash__gte=fatalCrashMin)
+
+        if fatalCrashMax:
+            if fatalCrashMax.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__fatal_crash__lte=fatalCrashMax)
+
+        if towawayCrashMin:
+            if towawayCrashMin.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__towaway_crash__gte=towawayCrashMin)
+
+        if towawayCrashMax:
+            if towawayCrashMax.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(crashes__towaway_crash__lte=towawayCrashMax)
 
         page = self.paginate_queryset(queryset)
         if page is not None:

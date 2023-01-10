@@ -156,6 +156,7 @@ def create_database(carrier_data, operation_class_data, basics_data, oos_data, c
             data['dot'] = carrier_data.get('dotNumber')
             data['legal_name'] = carrier_data.get('legalName')
             data['dba'] = carrier_data.get('dbaName')
+            data['total_driver'] = carrier_data.get('totalDrivers')
             # print(data)
             try:
                 serializer = CompanySerializer(data=data)
@@ -301,7 +302,7 @@ def get_leads(self):
     threads = list()
     batchsize = 10 #don't change
     try:
-        for i in range(3333460, 3333470, batchsize):
+        for i in range(3333480, 3333500, batchsize):
             print('batch: ', batchsize)
             for j in range(i,i+batchsize):
                 x = threading.Thread(target=thread_create_leads, args=(bot, j))
