@@ -116,6 +116,9 @@ class CompanyList(ModelViewSet):
         injuryCrashMin = self.request.query_params.get('injuryCrashMin', None)
         injuryCrashMax = self.request.query_params.get('injuryCrashMax', None)
 
+        minDriver = self.request.query_params.get('minDriver', None)
+        maxDriver = self.request.query_params.get('maxDriver', None)
+
         print(f'totalCrashMin: {totalCrashMin} \n totalCrashMax: {totalCrashMax} \n '
               f'fatalCrashMin: {fatalCrashMin}\nfatalCrashMax: {fatalCrashMax}\n'
               f'towawayCrashMin: {towawayCrashMin}\ntowawayCrashMax: {towawayCrashMax}\n'
