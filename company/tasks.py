@@ -300,7 +300,8 @@ def get_leads(self):
     print("Welcome to MetroMax Lead Finder\n")
     bot = FMCSABot('4ac96297a698eb309980998ca8d2f2c2594858ef')
     threads = list()
-    batchsize = 10 #don't change
+    batchsize = 10 #max batch size
+
     try:
         for i in range(3333480, 3333500, batchsize):
             print('batch: ', batchsize)
@@ -647,34 +648,44 @@ def SolveCaptcha():
 
 def find_payload():
     try:
-        with open("get_detail.html") as f:
+        with open("tmp/get_detail.html") as f:
             soup = BeautifulSoup(f, 'html.parser')
             legal_name = soup.find_all('input', {'name':'pv_legal_name'})[0].get('value')
             docket_number = soup.find_all('input', {'name':'pv_pref_docket'})[0].get('value')
-            pv_vpath = soup.find_all('input', {'name':'pv_vpath'})[0].get('value')
+            pv_vpath = soup.find_all('input', {'name':'pv_vpath'})[0].get('value', None)
             logger.info(f'docket_number, legal_name, pv_vpath: {docket_number, legal_name, pv_vpath}')
             return docket_number,legal_name, pv_vpath
     except:
         return None, None, None
+
 def get_address_phone_from_detail_page():
-    df = pd.read_html('get_detail.html', flavor='bs4')
+    df = pd.read_html('tmp/get_detail.html', flavor='bs4')
     logger.info(f'phone df: {df}')
     logger.info(f'phone df: {df[5]}')
     return df[5]
 
 def read_Insurance_from_html():
-    df  = pd.read_html('Insurance.html', flavor='bs4')
+    df  = pd.read_html('tmp/Insurance.html', flavor='bs4')
     insurance_data = df[4]
     logger.info(df[4])
     return df[4]
 
 def find_applicant_id():
-    with open("carrlist.html") as f:
+    count=0
+
+    with open("tmp/carrlist.html") as f:
         soup = BeautifulSoup(f, 'html.parser')
         try:
-            return soup.find('input', {'name':'pv_apcant_id'}).get('value')
+            apcant_id =  soup.find('input', {'name':'pv_apcant_id'}).get('value')
+
+            apcant_id_copy = soup.find('input', {'name': 'pv_apcant_id', 'type': 'hidden'}).get('value')
+
+            apcant_id = apcant_id or apcant_id_copy
+
+            return apcant_id
+
         except:
-            return 'apcant_id_error'
+                return 'apcant_id_error'
 
 @app.task()
 def Insurance_history(dot):
@@ -695,7 +706,7 @@ def Insurance_history(dot):
     headers = {}
     session = requests.Session()
     response = session.request("POST", url, headers=headers, data=payload, files=files)
-    with open("carrlist.html", "w") as f:
+    with open("tmp/carrlist.html", "w") as f:
         f.write(response.text)
     # step2: Find pv_apcant_id and request get_detail
     pv_apcant_id = find_applicant_id()
@@ -712,13 +723,13 @@ def Insurance_history(dot):
         url_detail = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_getdetail'
         response = session.request("POST", url_detail, headers=headers, data=payload, files=files)
 
-        with open("get_detail.html", "w") as f:
+        with open("tmp/get_detail.html", "w") as f:
             f.write(response.text)
 
         docket_number, legal_name, pv_vpath = find_payload() #it uses get_detail.html
 
     #step 3 get Insurance History
-        if docket_number and legal_name and pv_vpath:
+        if docket_number and legal_name:
             payload = {
                 'pv_apcant_id': pv_apcant_id,
                 'pv_legal_name': legal_name,
@@ -729,7 +740,7 @@ def Insurance_history(dot):
             insurance_history_url = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_insurancehistory'
             response = session.request('POST', insurance_history_url, headers=headers, data=payload, files=files)
 
-            with open("Insurance.html", "w") as f:
+            with open("tmp/Insurance.html", "w") as f:
                 f.write(response.text)
 
             df = read_Insurance_from_html()

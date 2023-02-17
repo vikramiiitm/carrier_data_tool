@@ -136,10 +136,17 @@ class CompanyList(ModelViewSet):
             queryset = queryset.filter(dot=dot)
         if dba:
             queryset = queryset.filter(dba__icontains=dba)
+        if minDriver:
+            if minDriver.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(total_driver__gte=minDriver)
+        if maxDriver:
+            if maxDriver.strip() not in ['undefined', '']:
+                    queryset = queryset.filter(total_driver__lte=maxDriver)
         if city:
             queryset = queryset.filter(addresses__city__icontains=city)
         if state:
             queryset = queryset.filter(addresses__state__icontains=state)
+
 
         if cargo:
             queryset = queryset.filter(cargo__description__icontains=cargo)
@@ -217,12 +224,18 @@ class CompanyList(ModelViewSet):
             if towawayCrashMax.strip() not in ['undefined', '']:
                     queryset = queryset.filter(crashes__towaway_crash__lte=towawayCrashMax)
 
+
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
+            import pandas as pd
+            df = pd.DataFrame(serializer.data)
+            df.to_csv('company_data_from_pandas.csv')
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+
         return Response(serializer.data)
     # def get_context_data(self, *args, object_list=None, **kwargs):
     #     context = super().get_context_data(**kwargs)
