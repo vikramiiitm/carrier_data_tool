@@ -301,9 +301,12 @@ def get_leads(self):
     bot = FMCSABot('4ac96297a698eb309980998ca8d2f2c2594858ef')
     threads = list()
     batchsize = 10 #max batch size
-
     try:
-        for i in range(3333480, 3333500, batchsize):
+        latest_dot = Company.objects.last().dot
+    except:
+        latest_dot = 4046002
+    try:
+        for i in range(latest_dot, latest_dot+batchsize, batchsize):
             print('batch: ', batchsize)
             for j in range(i,i+batchsize):
                 x = threading.Thread(target=thread_create_leads, args=(bot, j))
