@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,6 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, ListView, DetailView
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
 from rest_framework.pagination import PageNumberPagination
@@ -229,9 +231,9 @@ class CompanyList(ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            import pandas as pd
-            df = pd.DataFrame(serializer.data)
-            df.to_csv('company_data_from_pandas.csv')
+            # import pandas as pd
+            # df = pd.DataFrame(serializer.data)
+            # df.to_csv('company_data_from_pandas.csv')
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)

@@ -336,11 +336,17 @@ hazmat_carrier_text_2 = 'Motor Carriers'
 non_hazmat_carrier_text = 'The SMS Summary Results for active Intrastate Non-Hazmat Motor Carriers'
 
 def unzip():
-    with zipfile.ZipFile('tmp/hazmat.zip') as zf:
+    with zipfile.ZipFile('/tmp/hazmat.zip') as zf:
         zf.extractall('zips')
 
 
 def zip_extract(file_name):
+    import shutil
+    dir_path = file_name
+    try:
+        shutil.rmtree(dir_path.split('.')[0])
+    except OSError as e:
+        print("Error: %s : %s" % (dir_path, e.strerror))
     with zipfile.ZipFile(file_name) as zip_:
         file_name = file_name.split('.')[0]
         print('extracting files', file_name)
@@ -388,7 +394,7 @@ def get_new_sms_result():
 
                         if file_resp.status_code == 200:
                             logger.info(f'Get {link} successful')
-                            new_hazmat_path = os.path.join('tmp',hazmat_file_name)
+                            new_hazmat_path = os.path.join('/tmp',hazmat_file_name)
 
                             if file_resp.headers.get('Content-Type') == 'application/x-zip-compressed':
                                 with open(new_hazmat_path, 'wb') as f:
@@ -408,7 +414,7 @@ def get_new_sms_result():
                             # logger.info(f'Get {link} successful')
 
                             if file_resp.headers.get('Content-Type') == 'application/x-zip-compressed':
-                                new_non_hazmat_path = os.path.join('tmp', non_hazmat_file_name)
+                                new_non_hazmat_path = os.path.join('/tmp', non_hazmat_file_name)
                                 with open(new_non_hazmat_path, 'wb') as f:
                                     f.write(file_resp.content)
                                 # logger.info("Non Hazmat File creation status: "
@@ -417,13 +423,13 @@ def get_new_sms_result():
                             else:
                                 error_data['error_detail'] = 'Non Hazmat file content type error'
                         continue
-
-            hazmat_file_path = os.path.join('tmp',hazmat_file_name)
+            
+            hazmat_file_path = os.path.join('/tmp',hazmat_file_name)
 
             zip_extract(hazmat_file_path.__str__())
             # hazmat_file_path.unlink()
 
-            non_hazmat_file_path = os.path.join('tmp',non_hazmat_file_name)
+            non_hazmat_file_path = os.path.join('/tmp',non_hazmat_file_name)
 
             zip_extract(non_hazmat_file_path.__str__())
             # non_hazmat_file_path.unlink()
@@ -449,7 +455,7 @@ def update_leads():
     # HAZMAT DATA UPDATE
     hazmat_file = None
     non_hazmat_file = None
-    for filename in os.listdir('tmp/hazmat'):
+    for filename in os.listdir('/tmp/hazmat'):
         f = os.path.join('tmp', 'hazmat', filename)
         # checking if it is a file
         if os.path.isfile(f):
@@ -460,9 +466,9 @@ def update_leads():
             if text:
                 if not text == 'The extracted data is from an FMCSA Safety Measurement System (SMS) data.':
                     hazmat_file = f
-    for filename in os.listdir('tmp/nonhazmat'):
+    for filename in os.listdir('/tmp/nonhazmat'):
         # print(filename, 'inside', os.path.isfile(os.path.join('tmp/hazmat', filename)))
-        f = os.path.join('tmp', 'nonhazmat', filename)
+        f = os.path.join('/tmp', 'nonhazmat', filename)
         # checking if it is a file
         if os.path.isfile(f):
             # check if out of two files which one contains data
@@ -648,7 +654,7 @@ def SolveCaptcha():
 
 def find_payload():
     try:
-        with open("tmp/get_detail.html") as f:
+        with open("/tmp/get_detail.html") as f:
             soup = BeautifulSoup(f, 'html.parser')
             legal_name = soup.find_all('input', {'name':'pv_legal_name'})[0].get('value')
             docket_number = soup.find_all('input', {'name':'pv_pref_docket'})[0].get('value')
@@ -659,13 +665,13 @@ def find_payload():
         return None, None, None
 
 def get_address_phone_from_detail_page():
-    df = pd.read_html('tmp/get_detail.html', flavor='bs4')
+    df = pd.read_html('/tmp/get_detail.html', flavor='bs4')
     logger.info(f'phone df: {df}')
     logger.info(f'phone df: {df[5]}')
     return df[5]
 
 def read_Insurance_from_html():
-    df  = pd.read_html('tmp/Insurance.html', flavor='bs4')
+    df  = pd.read_html('/tmp/Insurance.html', flavor='bs4')
     insurance_data = df[4]
     logger.info(df[4])
     return df[4]
@@ -673,7 +679,7 @@ def read_Insurance_from_html():
 def find_applicant_id():
     count=0
 
-    with open("tmp/carrlist.html") as f:
+    with open("/tmp/carrlist.html") as f:
         soup = BeautifulSoup(f, 'html.parser')
         try:
             apcant_id =  soup.find('input', {'name':'pv_apcant_id'}).get('value')
@@ -706,7 +712,7 @@ def Insurance_history(dot):
     headers = {}
     session = requests.Session()
     response = session.request("POST", url, headers=headers, data=payload, files=files)
-    with open("tmp/carrlist.html", "w") as f:
+    with open("/tmp/carrlist.html", "w") as f:
         f.write(response.text)
     # step2: Find pv_apcant_id and request get_detail
     pv_apcant_id = find_applicant_id()
@@ -723,7 +729,7 @@ def Insurance_history(dot):
         url_detail = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_getdetail'
         response = session.request("POST", url_detail, headers=headers, data=payload, files=files)
 
-        with open("tmp/get_detail.html", "w") as f:
+        with open("/tmp/get_detail.html", "w") as f:
             f.write(response.text)
 
         docket_number, legal_name, pv_vpath = find_payload() #it uses get_detail.html
@@ -740,7 +746,7 @@ def Insurance_history(dot):
             insurance_history_url = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_insurancehistory'
             response = session.request('POST', insurance_history_url, headers=headers, data=payload, files=files)
 
-            with open("tmp/Insurance.html", "w") as f:
+            with open("/tmp/Insurance.html", "w") as f:
                 f.write(response.text)
 
             df = read_Insurance_from_html()
