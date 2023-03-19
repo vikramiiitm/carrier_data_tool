@@ -677,7 +677,12 @@ def get_address_phone_from_detail_page():
         soup = BeautifulSoup(fp, 'html.parser')
         phone = soup.find_all('td', {'headers': 'business_tel_and_fax'})[0].text
         return phone
-
+def get_mail_telephone_and_fax_detail_age():
+    url = 'tmp/get_detail.html'
+    with open(url) as fp:
+        soup = BeautifulSoup(fp, 'html.parser')
+        email = soup.find_all('td', {'headers': 'mail_telephone_and_fax'})[0].text
+        return email
 def read_Insurance_from_html():
     df  = pd.read_html('tmp/Insurance.html', flavor='bs4')
     insurance_data = df[4]
@@ -776,9 +781,13 @@ def Insurance_history(dot):
             # create company phone from detail page
             logger.info('getting phone')
             phone = get_address_phone_from_detail_page()
+            email = get_mail_telephone_and_fax_detail_age()
             logger.info(f'phone: {phone}')
             if phone is not None:
                 company_obj.phone = str(phone)
+                company_obj.save()
+            if email is not None:
+                company_obj.email = str(email)
                 company_obj.save()
             for key, value in df.iterrows():
                 try:
