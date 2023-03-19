@@ -302,13 +302,17 @@ def get_leads(self):
     threads = list()
     batchsize = 10 #max batch size
     try:
-        latest_dot = Company.objects.last().dot
+        from_dot = Company.objects.last().dot
     except:
-        latest_dot = 4046002
+        from_dot = 4045095  #give dot-1
+    dot_to = 4045105
     try:
-        for i in range(latest_dot, latest_dot+batchsize, batchsize):
-            print('batch: ', batchsize)
-            for j in range(i,i+batchsize):
+        for i in range(from_dot+1, dot_to+1, batchsize):
+            print('\nbatch: ', i, end='\n')
+            to = i + batchsize
+            if dot_to <= to:
+                to = dot_to
+            for j in range(i, to + 1):
                 x = threading.Thread(target=thread_create_leads, args=(bot, j))
                 threads.append(x)
                 x.start()
@@ -330,7 +334,7 @@ def get_leads(self):
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
-FILE_DIR = Path('/tmp')
+FILE_DIR = Path('tmp')
 
 FMCSA_BASE_URL = 'https://ai.fmcsa.dot.gov'
 DOWNLOAD_SECTION_ENDPOINT = '/SMS/Tools/Downloads.aspx'
@@ -339,7 +343,7 @@ hazmat_carrier_text_2 = 'Motor Carriers'
 non_hazmat_carrier_text = 'The SMS Summary Results for active Intrastate Non-Hazmat Motor Carriers'
 
 def unzip():
-    with zipfile.ZipFile('/tmp/hazmat.zip') as zf:
+    with zipfile.ZipFile('tmp/hazmat.zip') as zf:
         zf.extractall('zips')
 
 
@@ -397,7 +401,7 @@ def get_new_sms_result():
 
                         if file_resp.status_code == 200:
                             logger.info(f'Get {link} successful')
-                            new_hazmat_path = os.path.join('/tmp',hazmat_file_name)
+                            new_hazmat_path = os.path.join('tmp',hazmat_file_name)
 
                             if file_resp.headers.get('Content-Type') == 'application/x-zip-compressed':
                                 with open(new_hazmat_path, 'wb') as f:
@@ -417,7 +421,7 @@ def get_new_sms_result():
                             # logger.info(f'Get {link} successful')
 
                             if file_resp.headers.get('Content-Type') == 'application/x-zip-compressed':
-                                new_non_hazmat_path = os.path.join('/tmp', non_hazmat_file_name)
+                                new_non_hazmat_path = os.path.join('tmp', non_hazmat_file_name)
                                 with open(new_non_hazmat_path, 'wb') as f:
                                     f.write(file_resp.content)
                                 # logger.info("Non Hazmat File creation status: "
@@ -427,12 +431,12 @@ def get_new_sms_result():
                                 error_data['error_detail'] = 'Non Hazmat file content type error'
                         continue
             
-            hazmat_file_path = os.path.join('/tmp',hazmat_file_name)
+            hazmat_file_path = os.path.join('tmp',hazmat_file_name)
 
             zip_extract(hazmat_file_path.__str__())
             # hazmat_file_path.unlink()
 
-            non_hazmat_file_path = os.path.join('/tmp',non_hazmat_file_name)
+            non_hazmat_file_path = os.path.join('tmp',non_hazmat_file_name)
 
             zip_extract(non_hazmat_file_path.__str__())
             # non_hazmat_file_path.unlink()
@@ -458,7 +462,7 @@ def update_leads():
     # HAZMAT DATA UPDATE
     hazmat_file = None
     non_hazmat_file = None
-    for filename in os.listdir('/tmp/hazmat'):
+    for filename in os.listdir('tmp/hazmat'):
         f = os.path.join('tmp', 'hazmat', filename)
         # checking if it is a file
         if os.path.isfile(f):
@@ -469,9 +473,9 @@ def update_leads():
             if text:
                 if not text == 'The extracted data is from an FMCSA Safety Measurement System (SMS) data.':
                     hazmat_file = f
-    for filename in os.listdir('/tmp/nonhazmat'):
+    for filename in os.listdir('tmp/nonhazmat'):
         # print(filename, 'inside', os.path.isfile(os.path.join('tmp/hazmat', filename)))
-        f = os.path.join('/tmp', 'nonhazmat', filename)
+        f = os.path.join('tmp', 'nonhazmat', filename)
         # checking if it is a file
         if os.path.isfile(f):
             # check if out of two files which one contains data
@@ -657,7 +661,7 @@ def SolveCaptcha():
 
 def find_payload():
     try:
-        with open("/tmp/get_detail.html") as f:
+        with open("tmp/get_detail.html") as f:
             soup = BeautifulSoup(f, 'html.parser')
             legal_name = soup.find_all('input', {'name':'pv_legal_name'})[0].get('value')
             docket_number = soup.find_all('input', {'name':'pv_pref_docket'})[0].get('value')
@@ -668,13 +672,14 @@ def find_payload():
         return None, None, None
 
 def get_address_phone_from_detail_page():
-    df = pd.read_html('/tmp/get_detail.html', flavor='bs4')
-    logger.info(f'phone df: {df}')
-    logger.info(f'phone df: {df[5]}')
-    return df[5]
+    url = 'tmp/get_detail.html'
+    with open(url) as fp:
+        soup = BeautifulSoup(fp, 'html.parser')
+        phone = soup.find_all('td', {'headers': 'business_tel_and_fax'})[0].text
+        return phone
 
 def read_Insurance_from_html():
-    df  = pd.read_html('/tmp/Insurance.html', flavor='bs4')
+    df  = pd.read_html('tmp/Insurance.html', flavor='bs4')
     insurance_data = df[4]
     logger.info(df[4])
     return df[4]
@@ -682,7 +687,7 @@ def read_Insurance_from_html():
 def find_applicant_id():
     count=0
 
-    with open("/tmp/carrlist.html") as f:
+    with open("tmp/carrlist.html") as f:
         soup = BeautifulSoup(f, 'html.parser')
         try:
             apcant_id =  soup.find('input', {'name':'pv_apcant_id'}).get('value')
@@ -694,7 +699,7 @@ def find_applicant_id():
             return apcant_id
 
         except:
-                return 'apcant_id_error'
+            return 'apcant_id_error'
 
 @app.task()
 def Insurance_history(dot):
@@ -715,24 +720,36 @@ def Insurance_history(dot):
     headers = {}
     session = requests.Session()
     response = session.request("POST", url, headers=headers, data=payload, files=files)
-    with open("/tmp/carrlist.html", "w") as f:
-        f.write(response.text)
-    # step2: Find pv_apcant_id and request get_detail
-    pv_apcant_id = find_applicant_id()
-    logger.info(f'pv_apcant_id: {pv_apcant_id}')
+    # logger.info(response.text)
+
+    # step2: Find pv_apcant_id FROM get_detail
+    apcant_id = None
+    try:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        apcant_id = soup.find('input', {'name': 'pv_apcant_id'})['value']
+        logger.info(f'apcant id : {apcant_id}')
+    except:
+        apcant_id = None
+    if apcant_id is None:
+        with open("tmp/carrlist.html", "w") as f:
+            f.write(response.text)
+    if apcant_id is None:
+        apcant_id = find_applicant_id()
+        logger.info(f'pv_apcant_id: {apcant_id}')
 
     #apcant id is error call insurance apui again with the dot
     # if pv_apcant_id == 'apcant_id_error':
     #     Insurance_history.delay(dot)
-    if pv_apcant_id != 'apcant_id_error':
+    if apcant_id is not None:
+        logger.info('inside insurance request')
         payload = {
-            'pv_apcant_id': pv_apcant_id,
+            'pv_apcant_id': apcant_id,
             'pv_vpath': 'LIVIEW'
         }
         url_detail = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_getdetail'
         response = session.request("POST", url_detail, headers=headers, data=payload, files=files)
 
-        with open("/tmp/get_detail.html", "w") as f:
+        with open("tmp/get_detail.html", "w") as f:
             f.write(response.text)
 
         docket_number, legal_name, pv_vpath = find_payload() #it uses get_detail.html
@@ -740,7 +757,7 @@ def Insurance_history(dot):
     #step 3 get Insurance History
         if docket_number and legal_name:
             payload = {
-                'pv_apcant_id': pv_apcant_id,
+                'pv_apcant_id': apcant_id,
                 'pv_legal_name': legal_name,
                 'pv_pref_docket': docket_number,
                 'pv_usdot_no': dot,
@@ -749,7 +766,7 @@ def Insurance_history(dot):
             insurance_history_url = 'https://li-public.fmcsa.dot.gov/LIVIEW/pkg_carrquery.prc_insurancehistory'
             response = session.request('POST', insurance_history_url, headers=headers, data=payload, files=files)
 
-            with open("/tmp/Insurance.html", "w") as f:
+            with open("tmp/Insurance.html", "w") as f:
                 f.write(response.text)
 
             df = read_Insurance_from_html()
@@ -757,13 +774,9 @@ def Insurance_history(dot):
             company_obj = Company.objects.get(dot=dot)
 
             # create company phone from detail page
-            phone_df = get_address_phone_from_detail_page()
-            try:
-                for k, v in phone_df.iterrows():
-                    v = v.get('BusinessTelephone and Fax')
-                    phone = str(v)[:14]
-            except:
-                phone = None
+            logger.info('getting phone')
+            phone = get_address_phone_from_detail_page()
+            logger.info(f'phone: {phone}')
             if phone is not None:
                 company_obj.phone = str(phone)
                 company_obj.save()

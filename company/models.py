@@ -34,6 +34,7 @@ class Company(CompanyBaseModel):
     contract_authority_status = models.CharField(max_length=5, blank=True, null=True)
     docket_number = models.CharField(max_length=15, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
 
 
 class CompanyAddress(BaseModel):
