@@ -90,6 +90,17 @@ WSGI_APPLICATION = 'carrier_data_tool.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'carrier_data_tool',
+#         'USER': 'comp_dev',
+#         'PASSWORD': 'metromax@2022',
+#         'HOST': 'localhost',
+#         'PORT': '3306'
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
