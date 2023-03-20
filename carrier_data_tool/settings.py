@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'bootstrapform',
     'django_celery_beat',
     'django_celery_results',
-    'djstripe'
+    # 'djstripe'
 ]
 
 MIDDLEWARE = [
@@ -103,12 +103,8 @@ WSGI_APPLICATION = 'carrier_data_tool.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'carrier_data_tool',
-        'USER': 'comp_dev',
-        'PASSWORD': 'metromax@2022',
-        'HOST': 'localhost',
-        'PORT': '3306'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'sqlite.db'),
     }
 }
 
