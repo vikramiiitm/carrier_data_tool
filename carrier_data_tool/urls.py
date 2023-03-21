@@ -27,6 +27,6 @@ urlpatterns = [
     path('api/account/', include('account.urls')),
     path('api/company/', include('company.urls')),
     path('', RedirectView.as_view(url='/company/companies/', permanent=True)),
-    path("stripe/", include("djstripe.urls", namespace="djstripe")),
+    # path("stripe/", include("djstripe.urls", namespace="djstripe")),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
