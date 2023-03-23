@@ -220,6 +220,8 @@ CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672/vikram_1'
 
 CELERY_TIMEZONE = TIME_ZONE
 
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
 STRIPE_LIVE_SECRET_KEY = os.environ.get("STRIPE_LIVE_SECRET_KEY", "<your secret key>")
 STRIPE_TEST_SECRET_KEY = os.environ.get("STRIPE_TEST_SECRET_KEY")
 STRIPE_LIVE_MODE = False  # Change to True in production
