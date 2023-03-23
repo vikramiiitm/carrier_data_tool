@@ -305,7 +305,7 @@ def get_leads(self):
         from_dot = Company.objects.last().dot
     except:
         from_dot = 4045095  #give dot-1
-    dot_to = 4045105
+    dot_to = from_dot+10
     try:
         for i in range(from_dot+1, dot_to+1, batchsize):
             print('\nbatch: ', i, end='\n')
